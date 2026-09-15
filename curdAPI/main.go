@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"log"
-	"math/rand"
+	//"math/rand"
 	"net/http"
-	"strconv"
+	//"strconv"
 )
 
 type Movie struct {
@@ -24,6 +24,22 @@ type Director struct {
 
 var movies []Movie
 
+func getMovies(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(movies)
+}
+
+func deleteMovies(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for index, item := range movies {
+		if item.ID == params["id"] {
+			movies = append(movies[:index], movies[index+1:]...)
+			break
+		}
+	}
+}
+
 func main() {
 	r := mux.NewRouter()
 
@@ -31,11 +47,11 @@ func main() {
 	movies = append(movies, Movie{ID: "2", Isbn: "67890", Title: "movies_name_2", Director: &Director{Firstname: "director_firstname", Lastname: "director_lastname"}})
 
 	r.HandleFunc("/movies", getMovies).Methods("GET")
-	r.HandleFunc("/movies/{id}", getMovies).Methods("GET")
-	r.HandleFunc("/movies", createMovies).Methods("POST")
-	r.HandleFunc("/movies/{id}", updateMovies).Methods("PUT")
-	r.HandleFunc("/moviss/{id}", deleteMovies).Methods("DELETE")
+	//r.HandleFunc("/movies/{id}", getMovie).Methods("GET")
+	//r.HandleFunc("/movies", createMovies).Methods("POST")
+	//r.HandleFunc("/movies/{id}", updateMovies).Methods("PUT")
+	r.HandleFunc("/movies/{id}", deleteMovies).Methods("DELETE")
 
-	fmt.Pirntf("Starting server at port 8000\n")
-	log.Fatal(http.ListenAndserve(":8000", r))
+	fmt.Printf("Starting server at port 8000\n")
+	log.Fatal(http.ListenAndServe(":8000", r))
 }
